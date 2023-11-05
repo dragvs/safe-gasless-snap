@@ -4,13 +4,14 @@ import {
   type OnKeyringRequestHandler,
   type OnRpcRequestHandler,
 } from '@metamask/snaps-types';
-import { copyable, divider, heading, panel, text } from '@metamask/snaps-ui';
+import { divider, heading, panel, text } from '@metamask/snaps-ui';
 import {
   OperationType,
   type MetaTransactionData,
 } from '@safe-global/safe-core-sdk-types';
 import fetchAdapter from '@vespaiach/axios-fetch-adapter';
 import axios from 'axios';
+import { ethers } from 'ethers';
 
 import { SafeKeyring, getState } from './keyring';
 
@@ -70,14 +71,12 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ request }) => {
         params: {
           type: DialogType.Confirmation,
           content: panel([
-            heading('Do you want to sign & send this transaction?'),
-            text(`From: ${from}`),
+            heading('Do you want to sign & send this transaction?\n'),
             divider(),
-            text(`To: ${to}`),
-            divider(),
-            text(`Value: ${value}`),
-            divider(),
-            text(`Data: ${data}`),
+            text(`**From:** ${from}`),
+            text(`**To:** ${to}`),
+            text(`**Value:** ${ethers.utils.formatEther(value)}`),
+            text(`**Data:** ${data}`),
           ]),
         },
       });
@@ -92,73 +91,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ request }) => {
         value,
         data,
       });
-    }
-
-    case 'safe_deploy': {
-      try {
-        const keyring = await getKeyring();
-        const transactionHash = await keyring.deploySafe();
-
-        return snap.request({
-          method: 'snap_dialog',
-          params: {
-            type: 'confirmation',
-            content: panel([
-              heading(`Your Safe account has been successfully deployed!`),
-              divider(),
-              text('Deployment transaction hash:'),
-              copyable(transactionHash),
-            ]),
-          },
-        });
-      } catch (error) {
-        return snap.request({
-          method: 'snap_dialog',
-          params: {
-            type: 'confirmation',
-            content: panel([
-              text('An error occurred while deploying Safe account:'),
-              text(String(error)),
-            ]),
-          },
-        });
-      }
-
-      // const safe = await getSafeSdk();
-      // try {
-      //   const destination = '0x68F3E0946b7a0b0172DE9dAb28Ce5b6937CC30A7';
-      //   const amount = ethers.utils.parseUnits('0.005', 'ether').toString();
-      //   const safeTransactionData: SafeTransactionDataPartial = {
-      //     to: destination,
-      //     data: '0x',
-      //     value: amount,
-      //   };
-      //   // Create a Safe transaction with the provided parameters
-      //   const safeTransaction = await safe.signTransaction(
-      //     await safe.createTransaction({
-      //       safeTransactionData,
-      //     }),
-      //   );
-      //   const receipt = await safe.executeTransaction(safeTransaction);
-      //   return snap.request({
-      //     method: 'snap_dialog',
-      //     params: {
-      //       type: 'confirmation',
-      //       content: panel([
-      //         text(`Hello, **${origin}**!`),
-      //         text(`Transaction hash: ${receipt.hash}`),
-      //       ]),
-      //     },
-      //   });
-      // } catch (error) {
-      //   return snap.request({
-      //     method: 'snap_dialog',
-      //     params: {
-      //       type: 'confirmation',
-      //       content: panel([text(`${error as any}`)]),
-      //     },
-      //   });
-      // }
     }
 
     default:

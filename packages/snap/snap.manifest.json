@@ -1,13 +1,13 @@
 {
   "version": "0.1.0",
   "description": "An example Snap written in TypeScript.",
-  "proposedName": "TypeScript Example",
+  "proposedName": "Gasless Safe Wallet",
   "repository": {
     "type": "git",
     "url": "https://github.com/MetaMask/template-snap-monorepo.git"
   },
   "source": {
-    "shasum": "KQZFBL/K8HfWEshLkN8BaJOBySOi1H9q8fn+9ZCKPUk=",
+    "shasum": "8r0RNHAREbZ3fuw1TUC/Hbhtm1Yi7B5v1hbHmMYbKHg=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -20,15 +20,14 @@
   "initialPermissions": {
     "snap_dialog": {},
     "snap_manageState": {},
-    "snap_manageAccounts": {},
     "snap_getEntropy": {},
     "endowment:keyring": {
       "allowedOrigins": [
-        "http://localhost:8000"
+        "http://localhost:3000"
       ]
     },
-    "endowment:ethereum-provider": {},
     "endowment:network-access": {},
+    "endowment:ethereum-provider": {},
     "endowment:rpc": {
       "dapps": true,
       "snaps": false

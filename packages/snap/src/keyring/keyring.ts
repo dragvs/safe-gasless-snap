@@ -292,12 +292,12 @@ export class SafeKeyring implements Keyring {
     return this.#safeSdk;
   }
 
-  async #handleSigningRequest(method: string, params: Json): Promise<Json> {
+  async #handleSigningRequest(method: string, _params: Json): Promise<Json> {
     switch (method) {
-      case EthMethod.Sign: {
-        const [from, data] = params as [string, string];
-        return this.#signMessage(from, data);
-      }
+      // case EthMethod.Sign: {
+      //   const [from, data] = params as [string, string];
+      //   return this.#signMessage(from, data);
+      // }
 
       // case EthMethod.SignTransaction: {
       //   const [tx] = params as [any];
@@ -404,18 +404,17 @@ export class SafeKeyring implements Keyring {
   //   return signature;
   // }
 
-  async #signMessage(from: string, data: string): Promise<string> {
-    const { privateKey } = this.#getWalletByAddress(from);
+  // async #signMessage(from: string, data: string): Promise<string> {
+  //   const { privateKey } = this.#getWalletByAddress(from);
 
-    const provider = new ethers.providers.Web3Provider(ethereum as any);
-    const signer = new ethers.Wallet(privateKey, provider);
+  //   const provider = new ethers.providers.Web3Provider(ethereum as any);
+  //   const signer = new ethers.Wallet(privateKey, provider);
 
-    return await signer.signMessage(data);
-  }
+  //   return await signer.signMessage(data);
+  // }
 
   async executeTransaction(transaction: MetaTransactionData): Promise<string> {
     const safe = await this.getSafeSdk();
-
     const chainId = await safe.getChainId();
 
     const options = {

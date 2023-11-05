@@ -97,9 +97,9 @@ export default function Index() {
             <PowerCircle className="h-4 w-4" />
             <AlertTitle>Connect with MetaMask</AlertTitle>
             <AlertDescription className="w-2/3">
-              Connect with MetaMask to be able to create Safe wallet, deposit &
-              transfer tokens and see all of your balances, all within the
-              MetaMask extension.
+              Connect this dapp to MetaMask to be able to create a Safe account,
+              manage tokens, and see your balance within the MetaMask extension
+              window.
               <div className="pt-2">
                 <ConnectButton reconnect={false} />
               </div>
@@ -114,7 +114,7 @@ export default function Index() {
               <AlertTitle>Create account</AlertTitle>
               <AlertDescription className="w-2/3">
                 Create a new MetaMask Snap account to get access to your
-                personal Safe wallet.
+                personal Safe account.
                 <div className="pt-2">
                   <CreateAccountButton />
                 </div>
@@ -129,9 +129,9 @@ export default function Index() {
               <AlertOctagon className="h-4 w-4" />
               <AlertTitle>This Safe is not deployed yet!</AlertTitle>
               <AlertDescription className="w-2/3">
-                First-ever outgoing transaction from Safe will deploy the
-                contract automagically. You can already top-up this wallet with
-                Wrapped xDAI or USDT to cover the gas fees.
+                First-ever outgoing transaction from Safe account will deploy
+                the contract automagically. You can already top-up this address
+                with Wrapped xDAI or USDT to cover the gas fees.
               </AlertDescription>
             </Alert>
           ),

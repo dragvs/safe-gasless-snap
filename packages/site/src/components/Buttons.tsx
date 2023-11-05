@@ -99,6 +99,10 @@ export const DeployButton = (props: ComponentProps<typeof Button>) => {
   return <Button {...props}>Deploy</Button>;
 };
 
+export const SendButton = (props: ComponentProps<typeof Button>) => {
+  return <Button {...props}>Send</Button>;
+};
+
 export const CreateAccountButton = (props: ComponentProps<typeof Button>) => {
   return <Button {...props}>Create account</Button>;
 };

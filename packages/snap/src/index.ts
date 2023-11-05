@@ -1,27 +1,32 @@
 import { handleKeyringRequest } from '@metamask/keyring-api';
-import type {
-  OnKeyringRequestHandler,
-  OnRpcRequestHandler,
+import {
+  DialogType,
+  type OnKeyringRequestHandler,
+  type OnRpcRequestHandler,
 } from '@metamask/snaps-types';
 import { copyable, divider, heading, panel, text } from '@metamask/snaps-ui';
+import {
+  OperationType,
+  type MetaTransactionData,
+} from '@safe-global/safe-core-sdk-types';
 import fetchAdapter from '@vespaiach/axios-fetch-adapter';
 import axios from 'axios';
 
 import { SafeKeyring, getState } from './keyring';
 
-let keyring: SafeKeyring;
-
 axios.defaults.adapter = fetchAdapter;
+
+let _keyring: SafeKeyring;
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 async function getKeyring(): Promise<SafeKeyring> {
-  if (!keyring) {
+  if (!_keyring) {
     const state = await getState();
-    if (!keyring) {
-      keyring = new SafeKeyring(state);
+    if (!_keyring) {
+      _keyring = new SafeKeyring(state);
     }
   }
-  return keyring;
+  return _keyring;
 }
 
 /**
@@ -35,6 +40,7 @@ async function getKeyring(): Promise<SafeKeyring> {
 export const onRpcRequest: OnRpcRequestHandler = async ({ request }) => {
   switch (request.method) {
     case 'safe_isDeployed': {
+      const keyring = await getKeyring();
       if (!keyring) {
         return false;
       }
@@ -46,9 +52,53 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ request }) => {
       return safe ? await safe.isSafeDeployed() : false;
     }
 
+    case 'safe_sendTransaction': {
+      const keyring = await getKeyring();
+      if (!keyring) {
+        return null;
+      }
+
+      const { to, value, data } =
+        request.params as unknown as MetaTransactionData;
+
+      const safe = await keyring.getSafeSdk();
+      const from = await safe.getAddress();
+
+      // eslint-disable-next-line @typescript-eslint/await-thenable
+      const response = await snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: DialogType.Confirmation,
+          content: panel([
+            heading('Do you want to sign & send this transaction?'),
+            text(`From: ${from}`),
+            divider(),
+            text(`To: ${to}`),
+            divider(),
+            text(`Value: ${value}`),
+            divider(),
+            text(`Data: ${data}`),
+          ]),
+        },
+      });
+
+      if (!response) {
+        return null;
+      }
+
+      return await keyring.executeTransaction({
+        operation: OperationType.Call,
+        to,
+        value,
+        data,
+      });
+    }
+
     case 'safe_deploy': {
       try {
+        const keyring = await getKeyring();
         const transactionHash = await keyring.deploySafe();
+
         return snap.request({
           method: 'snap_dialog',
           params: {

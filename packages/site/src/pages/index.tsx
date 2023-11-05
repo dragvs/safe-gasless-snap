@@ -1,27 +1,24 @@
 import { useContext } from 'react';
+import { useQuery } from 'react-query';
 import styled from 'styled-components';
 
 import {
-  ConnectButton,
-  InstallFlaskButton,
-  ReconnectButton,
-  CreateAccountButton,
   Card,
-  DeployButton,
+  ConnectButton,
+  CreateAccountButton,
+  InstallFlaskButton,
 } from '../components';
+import { SendForm } from '../components/SendForm';
 import { defaultSnapOrigin } from '../config';
-import { MetamaskActions, MetaMaskContext } from '../hooks';
+import { MetaMaskContext, MetamaskActions } from '../hooks';
 import {
   connectSnap,
+  createAccount,
+  getIsDeployed,
   getSnap,
   isLocalSnap,
-  createAccount,
-  shouldDisplayReconnectButton,
   listAccounts,
-  getIsDeployed,
-  deploySafe,
 } from '../utils';
-import { useQuery } from 'react-query';
 
 const Container = styled.div`
   display: flex;
@@ -70,25 +67,6 @@ const CardContainer = styled.div`
   margin-top: 1.5rem;
 `;
 
-// const Notice = styled.div`
-//   background-color: ${({ theme }) => theme.colors.background?.alternative};
-//   border: 1px solid ${({ theme }) => theme.colors.border?.default};
-//   color: ${({ theme }) => theme.colors.text?.alternative};
-//   border-radius: ${({ theme }) => theme.radii.default};
-//   padding: 2.4rem;
-//   margin-top: 2.4rem;
-//   max-width: 60rem;
-//   width: 100%;
-
-//   & > * {
-//     margin: 0;
-//   }
-//   ${({ theme }) => theme.mediaQueries.small} {
-//     margin-top: 1.2rem;
-//     padding: 1.6rem;
-//   }
-// `;
-
 const ErrorMessage = styled.div`
   background-color: ${({ theme }) => theme.colors.error?.muted};
   border: 1px solid ${({ theme }) => theme.colors.error?.default};
@@ -117,14 +95,16 @@ const Index = () => {
   const { data: snapAccounts } = useQuery({
     queryKey: ['snap-accounts'],
     queryFn: listAccounts,
+    enabled: isMetaMaskReady,
   });
 
   const hasSnapAccount =
     typeof snapAccounts !== 'undefined' && snapAccounts.length > 0;
 
-  const { data: isDeployed, refetch: refetchDeploy } = useQuery({
+  const { data: isDeployed } = useQuery({
     queryKey: ['is-deployed'],
     queryFn: getIsDeployed,
+    enabled: isMetaMaskReady,
   });
 
   const handleConnectClick = async () => {
@@ -151,15 +131,15 @@ const Index = () => {
     }
   };
 
-  const handleDeployAccountClick = async () => {
-    try {
-      await deploySafe();
-      await refetchDeploy();
-    } catch (error) {
-      console.error(error);
-      dispatch({ type: MetamaskActions.SetError, payload: error });
-    }
-  };
+  // const handleDeployAccountClick = async () => {
+  //   try {
+  //     await deploySafe();
+  //     await refetchDeploy();
+  //   } catch (error) {
+  //     console.error(error);
+  //     dispatch({ type: MetamaskActions.SetError, payload: error });
+  //   }
+  // };
 
   // const handleCreateAccountClick = async () => {
   //   try {
@@ -208,57 +188,20 @@ const Index = () => {
             disabled={!isMetaMaskReady}
           />
         )}
-        {shouldDisplayReconnectButton(state.installedSnap) && (
-          <Card
-            content={{
-              title: 'Reconnect',
-              description:
-                'While connected to a local running snap this button will always be displayed in order to update the snap if a change is made.',
-              button: (
-                <ReconnectButton
-                  onClick={handleConnectClick}
-                  disabled={!state.installedSnap}
-                />
-              ),
-            }}
-            disabled={!state.installedSnap}
-          />
-        )}
         {hasSnapAccount ? (
           <Card
             content={{
-              title: 'Your account',
+              title: isDeployed
+                ? 'Your Safe is deployed'
+                : 'Your Safe is not deployed yet',
               description: (
-                <div>
-                  <p>
-                    {isDeployed
-                      ? 'Your Safe is deployed.'
-                      : 'Your Safe is not deployed yet.'}
-                    {/* {isDeployed
-                      ? // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                        `Your Safe is deployed. Address: ${snapAccounts[0]?.address}`
-                      : 'Your Safe is not deployed yet. Press on "Deploy" button to initiate deployment.'} */}
-                  </p>
-                  {isDeployed && (
-                    <div>
-                      <p>Address: {snapAccounts[0]?.address}</p>
-                    </div>
-                  )}
-                </div>
-              ),
-              button: (
-                <DeployButton
-                  onClick={handleDeployAccountClick}
-                  disabled={isDeployed}
-                />
+                <span>
+                  Address: <b>{snapAccounts[0]?.address}</b>
+                </span>
               ),
             }}
             disabled={!state.installedSnap}
-            fullWidth={
-              isMetaMaskReady &&
-              Boolean(state.installedSnap) &&
-              !shouldDisplayReconnectButton(state.installedSnap)
-            }
+            fullWidth={isMetaMaskReady && Boolean(state.installedSnap)}
           />
         ) : (
           <Card
@@ -273,22 +216,11 @@ const Index = () => {
               ),
             }}
             disabled={!state.installedSnap}
-            fullWidth={
-              isMetaMaskReady &&
-              Boolean(state.installedSnap) &&
-              !shouldDisplayReconnectButton(state.installedSnap)
-            }
+            fullWidth={isMetaMaskReady && Boolean(state.installedSnap)}
           />
         )}
 
-        {/* <Notice>
-          <p>
-            Please note that the <b>snap.manifest.json</b> and{' '}
-            <b>package.json</b> must be located in the server root directory and
-            the bundle must be hosted at the location specified by the location
-            field.
-          </p>
-        </Notice> */}
+        {hasSnapAccount && <SendForm />}
       </CardContainer>
     </Container>
   );

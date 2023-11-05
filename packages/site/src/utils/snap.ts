@@ -90,4 +90,12 @@ export const deploySafe = async () => {
   await invokeSnap('safe_deploy');
 };
 
+export const sendSafeTransaction = async (
+  to: string,
+  value: string,
+  data: string,
+) => {
+  await invokeSnap('safe_sendTransaction', { to, value, data });
+};
+
 export const isLocalSnap = (snapId: string) => snapId.startsWith('local:');

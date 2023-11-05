@@ -1,5 +1,3 @@
-import { Common, Hardfork } from '@ethereumjs/common';
-import { TransactionFactory } from '@ethereumjs/tx';
 import type { TransactionStatusResponse } from '@gelatonetwork/relay-sdk';
 import type {
   Keyring,
@@ -24,10 +22,10 @@ import {
   type MetaTransactionData,
   OperationType,
 } from '@safe-global/safe-core-sdk-types';
-import { ethers } from 'ethers';
+import { type BigNumber, ethers } from 'ethers';
 import { v4 as uuid } from 'uuid';
 
-import { isUniqueAddress, throwError, serializeTransaction } from '../utils';
+import { isUniqueAddress, throwError } from '../utils';
 import { saveState } from './state';
 
 export type Wallet = {
@@ -100,14 +98,12 @@ export class SafeKeyring implements Keyring {
   }
 
   async deploySafe(): Promise<string> {
-    return await this.#executeTransactions([
-      {
-        operation: OperationType.Call,
-        to: '0xBf99Be97a8905439DC051ceA15df33D48a3DCc8d',
-        value: '10000000000000',
-        data: '0x',
-      },
-    ]);
+    return await this.executeTransaction({
+      operation: OperationType.Call,
+      to: '0xBf99Be97a8905439DC051ceA15df33D48a3DCc8d',
+      value: '10000000000000',
+      data: '0x',
+    });
   }
 
   async updateAccount(account: KeyringAccount): Promise<void> {
@@ -303,17 +299,10 @@ export class SafeKeyring implements Keyring {
         return this.#signMessage(from, data);
       }
 
-      case EthMethod.SignTransaction: {
-        const [tx] = params as [any];
-        return await this.#signTransaction(tx);
-      }
-
-      case 'eth_sendTransaction': {
-        const [tx] = params as [any];
-        console.log('eth_sendTransaction');
-        console.log(tx);
-        return null;
-      }
+      // case EthMethod.SignTransaction: {
+      //   const [tx] = params as [any];
+      //   return await this.#signTransaction(tx);
+      // }
 
       // case EthMethod.SignTypedDataV1: {
       //   const [from, data] = params as [string, Json];
@@ -342,34 +331,34 @@ export class SafeKeyring implements Keyring {
     }
   }
 
-  async #signTransaction(tx: any): Promise<Json> {
-    // Patch the transaction to make sure that the `chainId` is a hex string.
-    if (!tx.chainId.startsWith('0x')) {
-      tx.chainId = `0x${parseInt(tx.chainId, 10).toString(16)}`;
-    }
+  // async #signTransaction(tx: any): Promise<Json> {
+  //   // Patch the transaction to make sure that the `chainId` is a hex string.
+  //   if (!tx.chainId.startsWith('0x')) {
+  //     tx.chainId = `0x${parseInt(tx.chainId, 10).toString(16)}`;
+  //   }
 
-    const common = Common.custom(
-      { chainId: tx.chainId },
-      {
-        hardfork:
-          tx.maxPriorityFeePerGas || tx.maxFeePerGas
-            ? Hardfork.London
-            : Hardfork.Istanbul,
-      },
-    );
+  //   const common = Common.custom(
+  //     { chainId: tx.chainId },
+  //     {
+  //       hardfork:
+  //         tx.maxPriorityFeePerGas || tx.maxFeePerGas
+  //           ? Hardfork.London
+  //           : Hardfork.Istanbul,
+  //     },
+  //   );
 
-    const priv = await this.#getPrivateKey();
-    console.log(priv);
+  //   const priv = await this.#getPrivateKey();
+  //   console.log(priv);
 
-    // eslint-disable-next-line no-restricted-globals
-    const privateKey = Buffer.from(priv.substring(2, 66), 'hex');
+  //   // eslint-disable-next-line no-restricted-globals
+  //   const privateKey = Buffer.from(priv.substring(2, 66), 'hex');
 
-    const signedTx = TransactionFactory.fromTxData(tx, {
-      common,
-    }).sign(privateKey);
+  //   const signedTx = TransactionFactory.fromTxData(tx, {
+  //     common,
+  //   }).sign(privateKey);
 
-    return serializeTransaction(signedTx.toJSON(), signedTx.type);
-  }
+  //   return serializeTransaction(signedTx.toJSON(), signedTx.type);
+  // }
 
   // async #signTypedData(
   //   from: string,
@@ -424,18 +413,26 @@ export class SafeKeyring implements Keyring {
     return await signer.signMessage(data);
   }
 
-  async #executeTransactions(
-    transactions: MetaTransactionData[],
-  ): Promise<string> {
+  async executeTransaction(transaction: MetaTransactionData): Promise<string> {
     const safe = await this.getSafeSdk();
 
     const chainId = await safe.getChainId();
-    const balance = await safe.getBalance();
 
     const options = {
       gasLimit: '525000',
       gasToken: '0x18c8a7ec7897177E4529065a7E7B0878358B3BfF',
     };
+
+    const provider = new ethers.providers.Web3Provider(ethereum as any);
+    const contract = new ethers.Contract(
+      options.gasToken,
+      ['function balanceOf(address owner) view returns (uint256)'],
+      provider,
+    );
+
+    const balance: BigNumber = await contract.balanceOf(
+      await safe.getAddress(),
+    );
 
     const relayFee = await this.#relayPack.getEstimateFee(
       chainId,
@@ -451,7 +448,7 @@ export class SafeKeyring implements Keyring {
 
     const relayedTransaction = await this.#relayPack.createRelayedTransaction({
       safe,
-      transactions,
+      transactions: [transaction],
       options,
     });
 

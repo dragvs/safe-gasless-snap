@@ -6,8 +6,8 @@
   "scripts": {
     "allow-scripts": "yarn workspace root allow-scripts",
     "build": "remix build",
-    "dev": "remix dev --manual",
-    "start": "remix-serve ./build/index.js",
+    "serve": "remix-serve ./build/index.js",
+    "start": "remix dev --manual",
     "typecheck": "tsc"
   },
   "dependencies": {

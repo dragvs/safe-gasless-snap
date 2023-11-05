@@ -37,7 +37,7 @@ export function TokenCard({
       )}
 
       <div className="flex flex-1 flex-row justify-end">
-        <SendDialog balanceData={data} />
+        <SendDialog erc20Address={contractAddress} balanceData={data} />
       </div>
     </div>
   );

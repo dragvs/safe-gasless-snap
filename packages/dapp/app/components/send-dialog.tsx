@@ -4,15 +4,14 @@ import { useMutation } from '@tanstack/react-query';
 import { Loader2, SendIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { isAddress, parseEther, transactionType, zeroAddress } from 'viem';
-import { useBalance, useChainId, useNetwork } from 'wagmi';
+import { Address, encodeFunctionData, isAddress, parseUnits } from 'viem';
+import { erc20ABI, useBalance } from 'wagmi';
 import { z } from 'zod';
 import { Button } from '~/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -20,24 +19,23 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '~/components/ui/form';
 import { Input } from '~/components/ui/input';
-import { Label } from '~/components/ui/label';
 import { ToastAction } from '~/components/ui/toast';
 import { useToast } from '~/components/ui/use-toast';
 import { invokeSnap } from '~/lib/snap';
 
 export function SendDialog({
+  erc20Address,
   balanceData,
 }: {
+  erc20Address?: Address;
   balanceData: ReturnType<typeof useBalance>['data'];
 }) {
-  const chainId = useChainId();
   const { toast } = useToast();
 
   const [open, setOpen] = useState(false);
@@ -68,12 +66,24 @@ export function SendDialog({
   });
 
   const { mutate, isPending, reset } = useMutation({
-    mutationFn: async ({ to, value }: z.infer<typeof formSchema>) => {
+    mutationFn: async (values: z.infer<typeof formSchema>) => {
+      const value = parseUnits(
+        values.value.toFixed(18),
+        balanceData?.decimals ?? 0,
+      );
+
       const transactionHash = await invokeSnap('safe_sendTransaction', {
-        to,
-        value: parseEther(value.toFixed(18)).toString(),
-        data: '0x',
+        to: erc20Address ?? values.to,
+        value: erc20Address ? '0' : value.toString(),
+        data: erc20Address
+          ? encodeFunctionData({
+              abi: erc20ABI,
+              functionName: 'transfer',
+              args: [values.to as Address, value],
+            })
+          : '0x',
       });
+
       if (typeof transactionHash !== 'string') {
         throw new Error('Transaction failed.');
       }

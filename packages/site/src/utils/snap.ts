@@ -1,7 +1,12 @@
+import { KeyringSnapRpcClient } from '@metamask/keyring-api';
 import type { MetaMaskInpageProvider } from '@metamask/providers';
 
 import { defaultSnapOrigin } from '../config';
 import type { GetSnapsResponse, Snap } from '../types';
+
+const getKeyringClient = () => {
+  return new KeyringSnapRpcClient(defaultSnapOrigin, window.ethereum);
+};
 
 /**
  * Get the installed snaps in MetaMask.
@@ -15,6 +20,7 @@ export const getSnaps = async (
   (await (provider ?? window.ethereum).request({
     method: 'wallet_getSnaps',
   })) as unknown as GetSnapsResponse;
+
 /**
  * Connect a snap to MetaMask.
  *
@@ -53,15 +59,35 @@ export const getSnap = async (version?: string): Promise<Snap | undefined> => {
   }
 };
 
-/**
- * Invoke the "hello" method from the example snap.
- */
-
-export const sendHello = async () => {
-  await window.ethereum.request({
+export const invokeSnap = async (method: string, params?: any) => {
+  return await window.ethereum.request({
     method: 'wallet_invokeSnap',
-    params: { snapId: defaultSnapOrigin, request: { method: 'hello' } },
+    params: {
+      snapId: defaultSnapOrigin,
+      request: { method, params: params ?? [] },
+    },
   });
+};
+
+export const listAccounts = async () => {
+  return await getKeyringClient().listAccounts();
+};
+
+export const getIsDeployed = async () => {
+  return await invokeSnap('safe_isDeployed');
+};
+
+export const createAccount = async () => {
+  const existingAccounts = await listAccounts();
+  if (existingAccounts.length > 0) {
+    throw new Error('Safe Snap account already exists');
+  }
+  const response = await getKeyringClient().createAccount();
+  return response.address;
+};
+
+export const deploySafe = async () => {
+  await invokeSnap('safe_deploy');
 };
 
 export const isLocalSnap = (snapId: string) => snapId.startsWith('local:');

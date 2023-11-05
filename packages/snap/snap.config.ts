@@ -9,6 +9,11 @@ const config: SnapConfig = {
   },
   polyfills: {
     buffer: true,
+    process: true,
+  },
+  environment: {
+    TEST_NETWORK: '',
+    ZKSYNC_WEB3_API_URL: '',
   },
 };
 

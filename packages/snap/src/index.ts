@@ -85,12 +85,21 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ request }) => {
         return null;
       }
 
-      return await keyring.executeTransaction({
-        operation: OperationType.Call,
-        to,
-        value,
-        data,
-      });
+      let keyringResponse
+
+      try {
+        keyringResponse = await keyring.executeTransaction({
+          operation: OperationType.Call,
+          to,
+          value,
+          data,
+        });
+        console.log('Keyring response', keyringResponse);
+        return keyringResponse;
+      } catch (error) {
+        console.error('Keyring response failed', error);
+        throw error;
+      }
     }
 
     default:

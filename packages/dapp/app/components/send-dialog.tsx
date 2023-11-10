@@ -67,22 +67,37 @@ export function SendDialog({
 
   const { mutate, isPending, reset } = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
-      const value = parseUnits(
-        values.value.toFixed(18),
-        balanceData?.decimals ?? 0,
-      );
+      let value
 
-      const transactionHash = await invokeSnap('safe_sendTransaction', {
-        to: erc20Address ?? values.to,
-        value: erc20Address ? '0' : value.toString(),
-        data: erc20Address
-          ? encodeFunctionData({
+      try {
+        console.log('Parsing value', values.value)
+        value = parseUnits(
+          values.value.toFixed(18),
+          balanceData?.decimals ?? 0,
+        );
+      } catch (error) {
+        console.error('Failed to parse value', error);
+        throw error;
+      }
+
+      let transactionHash
+
+      try {
+        transactionHash = await invokeSnap('safe_sendTransaction', {
+          to: erc20Address ?? values.to,
+          value: erc20Address ? '0' : value.toString(),
+          data: erc20Address
+            ? encodeFunctionData({
               abi: erc20ABI,
               functionName: 'transfer',
               args: [values.to as Address, value],
             })
-          : '0x',
-      });
+            : '0x',
+        });
+      } catch (error) {
+        console.error('Failed to send transaction', error);
+        throw error;
+      }
 
       if (typeof transactionHash !== 'string') {
         throw new Error('Transaction failed.');

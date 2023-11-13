@@ -1,18 +1,18 @@
 {
-  "version": "0.1.0",
-  "description": "An example Snap written in TypeScript.",
-  "proposedName": "Gasless Safe Wallet",
+  "version": "0.2.0",
+  "description": "RocketLaunch Snap helps to create and use your own wallet with USDTs only",
+  "proposedName": "RocketLaunch",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MetaMask/template-snap-monorepo.git"
+    "url": "git+https://github.com/dragvs/safe-gasless-snap.git"
   },
   "source": {
-    "shasum": "RyVxGcr5Qjj6FBh4PLs17w8VRuE78CcTMktZfqpOls8=",
+    "shasum": "V8STsoa0xK9ZFOB9wgHm9+radNQj1t3n7jbdxrBlQpE=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
         "iconPath": "images/icon.svg",
-        "packageName": "snap",
+        "packageName": "rocketlaunchsnap",
         "registry": "https://registry.npmjs.org/"
       }
     }
@@ -24,7 +24,8 @@
     "snap_getEntropy": {},
     "endowment:keyring": {
       "allowedOrigins": [
-        "http://localhost:3000"
+        "http://localhost:3000",
+        "https://rocketlaunch.redsteep.com"
       ]
     },
     "endowment:network-access": {},

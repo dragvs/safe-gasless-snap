@@ -67,10 +67,10 @@ export function SendDialog({
 
   const { mutate, isPending, reset } = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
-      let value
+      let value;
 
       try {
-        console.log('Parsing value', values.value)
+        console.log('Parsing value', values.value);
         value = parseUnits(
           values.value.toFixed(18),
           balanceData?.decimals ?? 0,
@@ -80,7 +80,7 @@ export function SendDialog({
         throw error;
       }
 
-      let transactionHash
+      let transactionHash;
 
       try {
         transactionHash = await invokeSnap('safe_sendTransaction', {
@@ -88,10 +88,10 @@ export function SendDialog({
           value: erc20Address ? '0' : value.toString(),
           data: erc20Address
             ? encodeFunctionData({
-              abi: erc20ABI,
-              functionName: 'transfer',
-              args: [values.to as Address, value],
-            })
+                abi: erc20ABI,
+                functionName: 'transfer',
+                args: [values.to as Address, value],
+              })
             : '0x',
         });
       } catch (error) {
@@ -139,17 +139,16 @@ export function SendDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="secondary"
-          disabled={typeof balanceData === 'undefined'}
-        >
+        <Button variant="default" disabled={typeof balanceData === 'undefined'}>
           <SendIcon className="mr-2 h-4 w-4" /> Send
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Send {balanceData?.symbol}</DialogTitle>
+          <DialogTitle className="text-foreground">
+            Send {balanceData?.symbol}
+          </DialogTitle>
           <DialogDescription>
             Gas fees will be paid by this token.
           </DialogDescription>
@@ -162,9 +161,13 @@ export function SendDialog({
               name="to"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Recipient</FormLabel>
+                  <FormLabel className="text-foreground">Recipient</FormLabel>
                   <FormControl>
-                    <Input placeholder="0x000...00000" {...field} />
+                    <Input
+                      className="text-foreground"
+                      placeholder="0x000...00000"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -177,14 +180,15 @@ export function SendDialog({
               render={({ field }) => (
                 <FormItem>
                   <div className="flex flex-row justify-between">
-                    <FormLabel>Value</FormLabel>
-                    <FormLabel className="font-medium text-xs text-gray-600">
+                    <FormLabel className="text-foreground">Value</FormLabel>
+                    <FormLabel className="font-medium text-xs text-zinc-600">
                       Max:{' '}
                       {parseFloat(balanceData?.formatted ?? '0').toFixed(4)}
                     </FormLabel>
                   </div>
                   <FormControl>
                     <Input
+                      className="text-foreground"
                       type="number"
                       inputMode="decimal"
                       min={0.0}

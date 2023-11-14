@@ -26,7 +26,7 @@ import { useSnapAccounts } from '~/hooks/use-snap-accounts';
 import { getSnapOrigin, isLocalSnap } from '~/lib/snap';
 import { Snap } from '~/types/snap';
 
-const dappName = 'Gasless Wallet App';
+const dappName = 'RocketLaunch';
 
 export const meta: MetaFunction = () => {
   return [
@@ -50,9 +50,7 @@ export default function Index() {
 
   return (
     <div className="container max-w-[960px] py-8 space-y-8">
-      <h1 className="text-xl font-bold text-primary">
-        Gasless Safe Wallet App
-      </h1>
+      <h1 className="text-foreground text-xl font-bold">RocketLaunch</h1>
 
       <Card className="flex flex-row items-center justify-between p-4">
         {typeof snapAccount !== 'undefined' ? (
@@ -61,7 +59,7 @@ export default function Index() {
               <Jazzicon address={snapAccount.address} />
             </div>
             <div className="flex flex-col">
-              <span className="text-gray-600 text-sm">Safe address:</span>
+              <span className="text-zinc-600 text-sm">Safe address:</span>
               <span className="text-base font-medium">
                 {snapAccount.address}
               </span>
@@ -109,7 +107,7 @@ export default function Index() {
         .when(
           () => snapAccounts && snapAccounts.length <= 0,
           () => (
-            <Alert variant="destructive">
+            <Alert>
               <UserCircle className="h-4 w-4" />
               <AlertTitle>Create account</AlertTitle>
               <AlertDescription className="w-2/3">

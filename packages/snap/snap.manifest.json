@@ -7,7 +7,7 @@
     "url": "git+https://github.com/dragvs/safe-gasless-snap.git"
   },
   "source": {
-    "shasum": "V8STsoa0xK9ZFOB9wgHm9+radNQj1t3n7jbdxrBlQpE=",
+    "shasum": "RlcBQPRc8YgLi7TCPOBjUmpkAb12JYAjN5gjETus0Dk=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",

@@ -8,11 +8,11 @@ export function ConnectButton({ reconnect }: { reconnect?: boolean }) {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async () => await connectSnap(),
-    onSettled: () => queryClient.invalidateQueries(),
+    onSettled: () => queryClient.resetQueries(),
   });
 
   return (
-    <Button onClick={() => mutate()} disabled={isPending}>
+    <Button variant="destructive" onClick={() => mutate()} disabled={isPending}>
       {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
       {reconnect ? 'Reconnect' : 'Connect'}
     </Button>

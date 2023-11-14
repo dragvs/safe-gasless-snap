@@ -54,7 +54,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="bg-background">
         <WagmiConfig config={config}>
           <QueryClientProvider client={queryClient}>
             <Outlet />

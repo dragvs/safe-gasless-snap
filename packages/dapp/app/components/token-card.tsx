@@ -25,7 +25,7 @@ export function TokenCard({
       {data ? (
         <div className="flex flex-col">
           <span className="font-medium">{tokenName ?? data.symbol}</span>
-          <span className="text-gray-600 text-sm">
+          <span className="text-zinc-600 text-sm">
             {data.formatted} {data.symbol}
           </span>
         </div>

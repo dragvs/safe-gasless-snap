@@ -18,10 +18,7 @@ import Safe, {
   predictSafeAddress,
 } from '@safe-global/protocol-kit';
 import { GelatoRelayPack } from '@safe-global/relay-kit';
-import {
-  type MetaTransactionData,
-  OperationType,
-} from '@safe-global/safe-core-sdk-types';
+import { type MetaTransactionData } from '@safe-global/safe-core-sdk-types';
 import { type BigNumber, ethers } from 'ethers';
 import { v4 as uuid } from 'uuid';
 
@@ -95,15 +92,6 @@ export class SafeKeyring implements Keyring {
     } catch (error) {
       throw new Error((error as Error).message);
     }
-  }
-
-  async deploySafe(): Promise<string> {
-    return await this.executeTransaction({
-      operation: OperationType.Call,
-      to: '0xBf99Be97a8905439DC051ceA15df33D48a3DCc8d',
-      value: '10000000000000',
-      data: '0x',
-    });
   }
 
   async updateAccount(account: KeyringAccount): Promise<void> {

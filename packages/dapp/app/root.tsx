@@ -39,7 +39,9 @@ export const links: LinksFunction = () => [
 
 export async function loader() {
   return json({
-    env: { SNAP_ORIGIN: process.env.SNAP_ORIGIN },
+    env: {
+      SNAP_ORIGIN: process.env.SNAP_ORIGIN ?? 'npm:rocketlaunchsnap',
+    },
   });
 }
 

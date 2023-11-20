@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "RocketLaunch Snap helps to create and use your own wallet with USDTs only",
   "proposedName": "RocketLaunch",
   "repository": {
@@ -7,7 +7,7 @@
     "url": "git+https://github.com/dragvs/safe-gasless-snap.git"
   },
   "source": {
-    "shasum": "RlcBQPRc8YgLi7TCPOBjUmpkAb12JYAjN5gjETus0Dk=",
+    "shasum": "0h3HGwtteLIJu5wqJlY6YxWr7oMfU3CjEJEwEa5PJEk=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",

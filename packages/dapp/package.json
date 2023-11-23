@@ -13,7 +13,7 @@
   "dependencies": {
     "@hookform/resolvers": "^3.3.2",
     "@metamask/keyring-api": "^1.1.0",
-    "@metamask/providers": "^13.1.0",
+    "@metamask/providers": "^14.0.2",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-separator": "^1.0.3",
